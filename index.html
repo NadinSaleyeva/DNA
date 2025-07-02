@@ -9,7 +9,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #000;
+            background-color: #000;  /* Черный фон */
             font-family: 'Arial', sans-serif;
             cursor: crosshair;
         }
@@ -47,7 +47,7 @@
         <p>7 active segments with unique content</p>
     </div> -->
     
-
+*
 
 
     <script>
@@ -79,7 +79,7 @@
         // Активные сегменты равномерно распределены по длине спирали для лучшего UX.
 
         function draw() {
-            background(0, 0, 0, 30);
+            background(0, 0, 0, 50);
             
             const centerX = width / 2;
             const centerY = height / 2;
@@ -261,29 +261,29 @@
             if(!activeSegments.includes(hoveredSegment)) return;
             
             const segmentNames = [
-                '1_glitch',
-                '2_tipografika', 
-                '3_threads_connection',
-                '4_magnifier',
-                '5_switch',
-                '6_dna_mutation',
-                '7_nucleotides'
+                'glitch',
+                'tipografika', 
+                'threads_connection',
+                'magnifier',
+                'switch',
+                'dna_mutation',
+                'nucleotides'
             ];
             
             const activeIndex = activeSegments.indexOf(hoveredSegment);
             const segmentName = segmentNames[activeIndex];
             
             push();
-            fill(0, 0, 0, 180);
-            stroke(0, 200, 255, 150);
-            strokeWeight(2);
-            rect(mouseX + 10, mouseY - 35, 160, 30, 8);
+            // fill(0, 0, 0, 180);
+            // stroke(0, 200, 255, 150);
+            // strokeWeight(2);
+            // rect(mouseX + 10, mouseY - 35, 160, 30, 8);
             
             fill(255, 255, 100);
             noStroke();
             textAlign(LEFT, CENTER);
             textSize(13);
-            text(`${segmentName} - Кликните для изучения`, mouseX + 15, mouseY - 20);
+            text(`${segmentName}`, mouseX + 15, mouseY - 20);
             pop();
         }
         // Функция drawSegmentInfo() - отображает информацию только для активных сегментов.
