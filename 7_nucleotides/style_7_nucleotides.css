@@ -1,6 +1,15 @@
 html, body {
   margin: 0;
   padding: 0;
+
+
+body {
+    overflow-x: hidden; /* Убирает горизонтальный скроллбар */
+    overflow-y: hidden; /* Убирает вертикальный скроллбар */
+}
+
+
+
 }
 canvas {
   display: block;

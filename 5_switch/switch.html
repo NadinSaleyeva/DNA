@@ -7,6 +7,14 @@
     <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+
+
+
+
+    
  <link rel="stylesheet" type="text/css" href="style_5_switch.css">
 
 
@@ -56,11 +64,11 @@
                     for (let i = 0; i < 700; i++) {
                         particles.push(new Particle());
                     }
-                    sketch.textFont('Unbounded');
+                    sketch.textFont('Orbitron');
                 };
                 
                 sketch.draw = function() {
-                    sketch.background(10, 20, 30);
+                    sketch.background(0, 0, 0);
                     
                     // Частицы-символы
                     for (let p of particles) {
@@ -80,7 +88,7 @@
                         let y = sketch.height / 2 + sketch.sin(sketch.frameCount * 0.05 + i) * 10;
                         
                         // Динамический цвет
-                        sketch.fill(200, 1000 + sketch.sin(sketch.frameCount * 0.1 + i) * 1000, 500);
+                        sketch.fill(255, 100 + sketch.sin(sketch.frameCount * 0.1 + i) * 155, 200);
                         
                         // Отрисовка символа
                         sketch.text(nameText[i], x, y);
@@ -104,7 +112,13 @@
                     }
                     
                     display() {
-                        sketch.fill(100, 200 + sketch.sin(sketch.frameCount * 0.05 + this.x) * 55, 255, 150);
+                        sketch.fill(
+    100 + sketch.sin(sketch.frameCount * 0.05 + this.x) * 155,     // Red: от 100 до 255
+    100 + sketch.sin(sketch.frameCount * 0.05 + this.x) * 155,     // Green: от 100 до 255
+    100 + sketch.sin(sketch.frameCount * 0.05 + this.x) * 155,     // Blue: от 100 до 255
+    150 + sketch.sin(sketch.frameCount * 0.08 + this.x) * 105      // Alpha: от 150 до 255
+);
+
                         sketch.textSize(this.size);
                         let charIndex = sketch.floor(sketch.frameCount * 0.1 + this.x) % this.chars.length;
                         sketch.text(this.chars[charIndex], this.x, this.y);
@@ -130,6 +144,7 @@
                     sketch.colorMode(sketch.HSB, 360, 100, 100, 1);
                     waveAmplitude = sketch.height / 6;
                     sketch.textAlign(sketch.CENTER, sketch.CENTER);
+                     sketch.textFont('Orbitron');
                 };
                 
                 sketch.draw = function() {
@@ -206,6 +221,7 @@
                 sketch.setup = function() {
                     sketch.createCanvas(window.innerWidth, window.innerHeight);
                     sketch.colorMode(sketch.HSB, 360, 100, 100, 1);
+                     sketch.textFont('Orbitron');
                     
                     // Создание частиц
                     for (let i = 0; i < numParticles; i++) {
