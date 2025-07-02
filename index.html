@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA Interactive Visualization - Saleyeva Nadzeya</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Arial', sans-serif;
+            cursor: crosshair;
+        }
+        
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            z-index: 1000;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .info-panel h1 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #30F;
+        }
+        
+        .info-panel p {
+            margin: 5px 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- <div class="info-panel">
+        <h1>🧬 Interactive DNA Visualization</h1>
+        <p>Hover: Elements glow and scale</p>
+        <p>Click: Navigate to animation pages</p>
+        <p>7 active segments with unique content</p>
+    </div> -->
+    
+
+
+
+    <script>
+        let dnaRotation = 0;
+        let hoveredSegment = -1;
+        let segmentData = [];
+        let mouseInteracting = false;
+        
+        // Определяем 7 активных сегментов (равномерно распределенных)
+        const activeSegments = [5, 11, 17, 20, 23, 29, 35];
+        
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            noStroke();
+            
+            // Инициализация данных сегментов
+            for(let i = 0; i < 40; i++) {
+                segmentData.push({
+                    scale: 1.0,
+                    targetScale: 1.0,
+                    glowIntensity: 0,
+                    targetGlow: 0,
+                    isActive: activeSegments.includes(i) // Определяем активные сегменты
+                });
+            }
+        }
+        // Функция setup() - инициализирует холст и данные сегментов ДНК.
+        // Создает массив из 40 сегментов, но только 7 из них помечены как активные (интерактивные).
+        // Активные сегменты равномерно распределены по длине спирали для лучшего UX.
+
+        function draw() {
+            background(0, 0, 0, 30);
+            
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const dnaLength = min(width, height) * 0.8;
+            const segments = 40;
+            const spiralRadius = min(width, height) * 0.2;
+            
+            // Цвета
+            const blue = color(30, 150, 255);
+            const pink = color(255, 50, 150);
+            const white = color(255);
+            const activeBlue = color(0, 200, 255); // Более яркий синий для активных сегментов
+            const activePink = color(255, 100, 200); // Более яркий розовый для активных сегментов
+            
+            dnaRotation += 0.002;
+            
+            // Определяем наведенный сегмент
+            let newHoveredSegment = getHoveredSegment(centerX, centerY, dnaLength, segments, spiralRadius);
+            if(newHoveredSegment !== hoveredSegment) {
+                hoveredSegment = newHoveredSegment;
+            }
+            
+            // Обновляем анимации сегментов
+            updateSegmentAnimations();
+            
+            push();
+            translate(centerX, centerY);
+            rotate(dnaRotation);
+            
+            // Рисуем ДНК с интерактивностью
+            for (let i = 0; i < segments; i++) {
+                const y = map(i, 0, segments-1, -dnaLength/2, dnaLength/2);
+                const angle = map(i, 0, segments-1, 0, TWO_PI * 3);
+                
+                const segment = segmentData[i];
+                const isHovered = (i === hoveredSegment);
+                const isActive = segment.isActive;
+                
+                // Позиции спиралей
+                const x1 = -spiralRadius * cos(angle);
+                const x2 = spiralRadius * cos(angle);
+                
+                // Размер и свечение на основе взаимодействия
+                let elementSize = 15 * segment.scale;
+                let shadowBlur = 20 + segment.glowIntensity * 30;
+                
+                // Активные сегменты немного больше и ярче
+                if(isActive) {
+                    elementSize *= 1.2;
+                    shadowBlur += 10;
+                }
+                
+                drawingContext.shadowBlur = shadowBlur;
+                
+                // Левая спираль (синяя)
+                if(isActive) {
+                    drawingContext.shadowColor = `rgba(0, 200, 255, ${0.9 + segment.glowIntensity * 0.4})`;
+                    fill(lerpColor(activeBlue, color(150, 250, 255), segment.glowIntensity));
+                } else {
+                    drawingContext.shadowColor = `rgba(30, 150, 255, ${0.6 + segment.glowIntensity * 0.4})`;
+                    fill(lerpColor(blue, color(100, 200, 255), segment.glowIntensity));
+                }
+                ellipse(x1, y, elementSize, elementSize);
+                
+                // Правая спираль (розовая)
+                if(isActive) {
+                    drawingContext.shadowColor = `rgba(255, 100, 200, ${0.9 + segment.glowIntensity * 0.4})`;
+                    fill(lerpColor(activePink, color(255, 150, 250), segment.glowIntensity));
+                } else {
+                    drawingContext.shadowColor = `rgba(255, 50, 150, ${0.6 + segment.glowIntensity * 0.4})`;
+                    fill(lerpColor(pink, color(255, 100, 200), segment.glowIntensity));
+                }
+                ellipse(x2, y, elementSize, elementSize);
+                
+                // Соединения
+                if (i % 2 === 0) {
+                    if(isActive) {
+                        drawingContext.shadowColor = `rgba(255, 255, 255, ${0.8 + segment.glowIntensity * 0.4})`;
+                        stroke(lerpColor(white, color(255, 255, 200), segment.glowIntensity));
+                        strokeWeight(2 + segment.glowIntensity * 3);
+                    } else {
+                        drawingContext.shadowColor = `rgba(255, 255, 255, ${0.4 + segment.glowIntensity * 0.4})`;
+                        stroke(lerpColor(color(150, 150, 150), color(255, 255, 150), segment.glowIntensity));
+                        strokeWeight(1 + segment.glowIntensity * 2);
+                    }
+                    line(x1, y, x2, y);
+                    noStroke();
+                }
+            }
+            pop();
+            
+            // Центральная ось
+            drawingContext.shadowColor = 'rgba(255, 255, 255, 0.6)';
+            drawingContext.shadowBlur = 10;
+            stroke(white);
+            strokeWeight(1);
+            line(centerX, centerY - dnaLength/2 - 30, centerX, centerY + dnaLength/2 + 30);
+            noStroke();
+            
+            // Курсор информация
+            if(hoveredSegment >= 0) {
+                drawSegmentInfo();
+            }
+        }
+        // Функция draw() - основная функция рендеринга с поддержкой активных и неактивных сегментов.
+        // Рисует спираль ДНК из 40 сегментов, но только 7 являются интерактивными.
+        // Активные сегменты выделяются более яркими цветами, большим размером и интенсивным свечением.
+        // Неактивные сегменты отображаются приглушенными цветами для создания визуальной иерархии.
+        
+        function getHoveredSegment(centerX, centerY, dnaLength, segments, spiralRadius) {
+            const mouseRotatedX = (mouseX - centerX) * cos(-dnaRotation) - (mouseY - centerY) * sin(-dnaRotation);
+            const mouseRotatedY = (mouseX - centerX) * sin(-dnaRotation) + (mouseY - centerY) * cos(-dnaRotation);
+            
+            for(let i = 0; i < segments; i++) {
+                // Проверяем только активные сегменты
+                if(!activeSegments.includes(i)) continue;
+                
+                const y = map(i, 0, segments-1, -dnaLength/2, dnaLength/2);
+                const angle = map(i, 0, segments-1, 0, TWO_PI * 3);
+                
+                const x1 = -spiralRadius * cos(angle);
+                const x2 = spiralRadius * cos(angle);
+                
+                const detection_radius = 30; // Увеличенный радиус для активных сегментов
+                
+                // Проверка попадания в левую спираль
+                if(dist(mouseRotatedX, mouseRotatedY, x1, y) < detection_radius) {
+                    return i;
+                }
+                
+                // Проверка попадания в правую спираль
+                if(dist(mouseRotatedX, mouseRotatedY, x2, y) < detection_radius) {
+                    return i;
+                }
+                
+                // Проверка попадания в соединение
+                if(i % 2 === 0) {
+                    if(abs(mouseRotatedY - y) < 15 && 
+                       mouseRotatedX > min(x1, x2) - 15 && 
+                       mouseRotatedX < max(x1, x2) + 15) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
+        // Функция getHoveredSegment() - определяет наведение мыши только на активные сегменты.
+        // Проверяет попадание курсора только в область 7 активных сегментов, игнорируя остальные.
+        // Увеличен радиус обнаружения до 30 пикселей для улучшения интерактивности.
+        // Возвращает индекс активного сегмента или -1, если курсор не над активным элементом.
+        
+        function updateSegmentAnimations() {
+            for(let i = 0; i < segmentData.length; i++) {
+                const segment = segmentData[i];
+                const isHovered = (i === hoveredSegment);
+                const isActive = segment.isActive;
+                
+                // Целевые значения (только для активных сегментов)
+                if(isActive) {
+                    segment.targetScale = isHovered ? 1.6 : 1.0;
+                    segment.targetGlow = isHovered ? 1.0 : 0.2; // Базовое свечение для активных
+                } else {
+                    segment.targetScale = 1.0;
+                    segment.targetGlow = 0.0;
+                }
+                
+                // Плавная анимация
+                segment.scale = lerp(segment.scale, segment.targetScale, 0.1);
+                segment.glowIntensity = lerp(segment.glowIntensity, segment.targetGlow, 0.15);
+            }
+        }
+        // Функция updateSegmentAnimations() - управляет анимацией только активных сегментов.
+        // Активные сегменты имеют базовое свечение (0.2) и увеличиваются до 1.6x при наведении.
+        // Неактивные сегменты не анимируются и остаются в нейтральном состоянии.
+        // Создает четкое разделение между интерактивными и декоративными элементами.
+        
+        function drawSegmentInfo() {
+            // Проверяем, является ли сегмент активным
+            if(!activeSegments.includes(hoveredSegment)) return;
+            
+            const segmentNames = [
+                '1_glitch',
+                '2_tipografika', 
+                '3_threads_connection',
+                '4_magnifier',
+                '5_switch',
+                '6_dna_mutation',
+                '7_nucleotides'
+            ];
+            
+            const activeIndex = activeSegments.indexOf(hoveredSegment);
+            const segmentName = segmentNames[activeIndex];
+            
+            push();
+            fill(0, 0, 0, 180);
+            stroke(0, 200, 255, 150);
+            strokeWeight(2);
+            rect(mouseX + 10, mouseY - 35, 160, 30, 8);
+            
+            fill(255, 255, 100);
+            noStroke();
+            textAlign(LEFT, CENTER);
+            textSize(13);
+            text(`${segmentName} - Кликните для изучения`, mouseX + 15, mouseY - 20);
+            pop();
+        }
+        // Функция drawSegmentInfo() - отображает информацию только для активных сегментов.
+        // Показывает название конкретной темы генетики вместо номера сегмента.
+        // Использует более яркое оформление с цветной рамкой и желтым текстом
+        // для подчеркивания интерактивности активных элементов.
+        
+        function mousePressed() {
+            if(hoveredSegment >= 0 && activeSegments.includes(hoveredSegment)) {
+                const activeIndex = activeSegments.indexOf(hoveredSegment);
+                navigateToSegmentPage(activeIndex);
+            }
+        }
+        // Функция mousePressed() - обработчик клика только по активным сегментам.
+        // Проверяет, что клик произошел по активному сегменту, находит его индекс
+        // в массиве активных сегментов и запускает переход на соответствующую страницу.
+        
+        function navigateToSegmentPage(activeIndex) {
+            // Update paths to match your actual folder structure
+            const pages = [
+                './1_glitch/1_glitch.html',
+                './2_tipografika/2_tipografika.html', 
+                './3_threads_connection/3_threads_connection.html',
+                './4_magnifier/4_Magnifier.html',
+                './5_switch/switch.html',
+                './6_dna_mutation/6_dna_mutation.html',
+                './7_nucleotides/7_nucleotides.html'
+            ];
+            
+            const targetPage = pages[activeIndex];
+            
+            // Replace the alert with actual navigation
+            createTransitionEffect(() => {
+                window.location.href = targetPage;
+            });
+        }
+        // Функция navigateToSegmentPage() - управляет переходом к одной из 7 тематических страниц.
+        // Содержит массивы с названиями HTML-файлов и русскими названиями тем.
+        // Каждая страница посвящена ключевому аспекту молекулярной биологии.
+        // Использует индекс активного сегмента для определения целевой страницы.
+        
+        function createTransitionEffect(callback) {
+            // Анимация затухания перед переходом
+            let fadeAlpha = 0;
+            const fadeIn = setInterval(() => {
+                push();
+                fill(0, 0, 0, fadeAlpha);
+                rect(0, 0, width, height);
+                pop();
+                
+                fadeAlpha += 15;
+                if(fadeAlpha >= 255) {
+                    clearInterval(fadeIn);
+                    setTimeout(callback, 200);
+                }
+            }, 30);
+        }
+        // Функция createTransitionEffect() - создает плавный эффект затухания экрана перед переходом.
+        // Использует интервал для постепенного увеличения прозрачности черного прямоугольника
+        // от 0 до 255 (полное затемнение) с шагом 15 каждые 30мс. После завершения анимации
+        // выполняет переданную callback-функцию с задержкой 200мс для создания паузы.
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+        // Функция windowResized() - обработчик изменения размера окна браузера.
+        // Автоматически подстраивает размер холста под новые размеры окна,
+        // обеспечивая адаптивность визуализации на разных устройствах и при изменении размера окна.
+        
+        function mouseMoved() {
+            if(hoveredSegment >= 0 && activeSegments.includes(hoveredSegment)) {
+                document.body.style.cursor = 'pointer';
+            } else {
+                document.body.style.cursor = 'crosshair';
+            }
+        }
+        // Функция mouseMoved() - управляет курсором только для активных сегментов.
+        // Изменяет курсор на "pointer" только при наведении на активные сегменты,
+        // четко показывая пользователю, какие элементы интерактивны.
+        // Для всех остальных областей сохраняется курсор "crosshair".
+    </script>
+</body>
+</html>

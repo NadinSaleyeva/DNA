@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Три анимации с переключением</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&display=swap" rel="stylesheet">
+ <link rel="stylesheet" type="text/css" href="style_5_switch.css">
+
+
+
+
+
+
+   
+</head>
+<body class="bg-black">
+    <!-- <div class="info">Кликните в любом месте для переключения анимации</div>
+    <div class="anim-indicator">Анимация: 1</div> -->
+    
+    <script>
+        let currentAnimation = 1;
+        let p5Instance;
+        
+        // Инициализируем p5.js
+        function initializeP5() {
+            // Удаляем предыдущий экземпляр p5, если он существует
+            if (p5Instance) {
+                p5Instance.remove();
+            }
+            
+            // Создаем новый экземпляр p5 с текущей анимацией
+            p5Instance = new p5(animations[currentAnimation]);
+            
+            // Обновляем индикатор анимации
+            document.querySelector('.anim-indicator').textContent = 'Анимация: ' + currentAnimation;
+        }
+        
+        // Обработчик клика для переключения анимации
+        document.addEventListener('click', function() {
+            currentAnimation = (currentAnimation % 3) + 1;
+            initializeP5();
+        });
+        
+        // Объект с тремя анимациями
+        const animations = {
+            // Анимация 1: Волнистый текст с частицами-символами
+            1: function(sketch) {
+                let particles = [];
+                let nameText = "DNA";
+                
+                sketch.setup = function() {
+                    sketch.createCanvas(window.innerWidth, window.innerHeight);
+                    for (let i = 0; i < 700; i++) {
+                        particles.push(new Particle());
+                    }
+                    sketch.textFont('Unbounded');
+                };
+                
+                sketch.draw = function() {
+                    sketch.background(10, 20, 30);
+                    
+                    // Частицы-символы
+                    for (let p of particles) {
+                        p.update();
+                        p.display();
+                    }
+                    
+                    // Имя с эффектом волны и адаптивным расстоянием
+                    let fontSize = 78; // Размер шрифта
+                    let letterSpacing = fontSize * 0.7; // Расстояние между буквами
+                    
+                    sketch.textSize(fontSize);
+                    sketch.textAlign(sketch.CENTER, sketch.CENTER);
+                    for (let i = 0; i < nameText.length; i++) {
+                        // Расчет позиции с учетом межбуквенного расстояния
+                        let x = sketch.width / 2 - (nameText.length * letterSpacing) / 2 + i * letterSpacing;
+                        let y = sketch.height / 2 + sketch.sin(sketch.frameCount * 0.05 + i) * 10;
+                        
+                        // Динамический цвет
+                        sketch.fill(200, 1000 + sketch.sin(sketch.frameCount * 0.1 + i) * 1000, 500);
+                        
+                        // Отрисовка символа
+                        sketch.text(nameText[i], x, y);
+                    }
+                };
+                
+                // Класс частицы
+                class Particle {
+                    constructor() {
+                        this.x = sketch.random(sketch.width);
+                        this.y = sketch.random(sketch.height);
+                        this.speed = sketch.random(0.5, 2);
+                        this.size = sketch.random(80, 1000);
+                        this.chars = "123456780";
+                    }
+                    
+                    update() {
+                        this.y -= this.speed;
+                        if (this.y < -20) this.y = sketch.height + 20;
+                        this.x += sketch.sin(sketch.frameCount * 0.01 + this.y) * 0.5;
+                    }
+                    
+                    display() {
+                        sketch.fill(100, 200 + sketch.sin(sketch.frameCount * 0.05 + this.x) * 55, 255, 150);
+                        sketch.textSize(this.size);
+                        let charIndex = sketch.floor(sketch.frameCount * 0.1 + this.x) % this.chars.length;
+                        sketch.text(this.chars[charIndex], this.x, this.y);
+                    }
+                }
+                
+                sketch.windowResized = function() {
+                    sketch.resizeCanvas(window.innerWidth, window.innerHeight);
+                };
+            },
+            
+            // Анимация 2: Сетка с волновыми эффектами и цифрами
+            2: function(sketch) {
+                let cols, rows;
+                let cellSize = 20;
+                let time = 0;
+                let waveAmplitude;
+                
+                sketch.setup = function() {
+                    sketch.createCanvas(window.innerWidth, window.innerHeight);
+                    cols = sketch.floor(sketch.width / cellSize);
+                    rows = sketch.floor(sketch.height / cellSize);
+                    sketch.colorMode(sketch.HSB, 360, 100, 100, 1);
+                    waveAmplitude = sketch.height / 6;
+                    sketch.textAlign(sketch.CENTER, sketch.CENTER);
+                };
+                
+                sketch.draw = function() {
+                    sketch.background(0, 0, 10);
+                    
+                    let mouseXNormalized = sketch.map(sketch.mouseX, 0, sketch.width, 0, 1);
+                    let mouseYNormalized = sketch.map(sketch.mouseY, 0, sketch.height, 0, 1);
+                    
+                    time += 0.05;
+
+                    for (let x = 0; x < cols; x++) {
+                        for (let y = 0; y < rows; y++) {
+                            let xPos = x * cellSize;
+                            let yPos = y * cellSize;
+                            
+                            // Используем modulo для создания различных волновых паттернов
+                            let waveType = (x + y) % 4;
+                            
+                            let waveOffset = 0;
+                            switch (waveType) {
+                                case 0:
+                                    waveOffset = sketch.sin(time + x * 0.2 + y * 0.3) * waveAmplitude * mouseYNormalized;
+                                    break;
+                                case 1:
+                                    waveOffset = sketch.cos(time + x * 0.3 + y * 0.2) * waveAmplitude * mouseYNormalized;
+                                    break;
+                                case 2:
+                                    waveOffset = sketch.tan(time + x * 0.1 + y * 0.4) * waveAmplitude * mouseYNormalized;
+                                    break;
+                                case 3:
+                                    waveOffset = sketch.sin(time + x * 0.4 + y * 0.1) * sketch.cos(time + y * 0.3) * waveAmplitude * mouseYNormalized;
+                                    break;
+                            }
+                            
+                            let size = sketch.map(sketch.sin(time + x * 0.1 + y * 0.1), -1, 1, cellSize * 0.2, cellSize * 0.8);
+                            
+                            // Используем modulo для создания цветовых вариаций
+                            let hue = (x * 10 + y * 10 + time * 50) % 360;
+                            let saturation = 80 + (x % 2) * 20;
+                            let brightness = 60 + (y % 2) * 40;
+                            
+                            sketch.fill(hue, saturation, brightness);
+                            sketch.noStroke();
+                            
+                            sketch.push();
+                            sketch.translate(xPos + cellSize / 2, yPos + cellSize / 2 + waveOffset);
+                            
+                            // Поворачиваем цифры в зависимости от положения мыши
+                            sketch.rotate((x + y) * 0.1 * mouseXNormalized + time * 0.2);
+                            
+                            // Используем modulo для выбора цифры
+                            let digit = (x + y) % 10;
+                            sketch.textSize(size);
+                            sketch.text(digit, 0, 0);
+                            
+                            sketch.pop();
+                        }
+                    }
+                };
+                
+                sketch.windowResized = function() {
+                    sketch.resizeCanvas(window.innerWidth, window.innerHeight);
+                    cols = sketch.floor(sketch.width / cellSize);
+                    rows = sketch.floor(sketch.height / cellSize);
+                    waveAmplitude = sketch.height / 6;
+                };
+            },
+            
+            // Анимация 3: Падающие числовые частицы
+            3: function(sketch) {
+                let particles = [];
+                const numParticles = 1000;
+                
+                sketch.setup = function() {
+                    sketch.createCanvas(window.innerWidth, window.innerHeight);
+                    sketch.colorMode(sketch.HSB, 360, 100, 100, 1);
+                    
+                    // Создание частиц
+                    for (let i = 0; i < numParticles; i++) {
+                        particles.push(new Particle());
+                    }
+                };
+                
+                sketch.draw = function() {
+                    sketch.background(0, 0, 10, 0.1);
+                    
+                    // Обновление и отображение частиц
+                    for (let particle of particles) {
+                        particle.update();
+                        particle.display();
+                    }
+                };
+                
+                class Particle {
+                    constructor() {
+                        this.reset();
+                    }
+                    
+                    reset() {
+                        this.x = sketch.random(sketch.width);
+                        this.y = sketch.random(-100, -10);
+                        this.speed = sketch.random(2, 5);
+                        this.value = sketch.floor(sketch.random(10)); // Случайное число от 0 до 9
+                        this.size = sketch.random(10, 20);
+                    }
+                    
+                    update() {
+                        this.y += this.speed;
+                        if (this.y > sketch.height) {
+                            this.reset();
+                        }
+                        
+                        // Изменение значения частицы с использованием modulo
+                        if (sketch.frameCount % 30 === 0) { // Каждые 30 кадров
+                            this.value = (this.value + 1) % 10;
+                        }
+                    }
+                    
+                    display() {
+                        let distToMouse = sketch.dist(this.x, this.y, sketch.mouseX, sketch.mouseY);
+                        let maxDist = 100;
+                        
+                        if (distToMouse < maxDist) {
+                            // Частицы вблизи курсора меняют цвет
+                            let hue = sketch.map(distToMouse, 0, maxDist, 0, 360);
+                            sketch.fill(hue, 100, 100, 0.8);
+                        } else {
+                            sketch.fill(0, 0, 100, 0.8);
+                        }
+                        
+                        sketch.noStroke();
+                        sketch.textSize(this.size);
+                        sketch.textAlign(sketch.CENTER, sketch.CENTER);
+                        
+                        // Использование modulo для выбора отображаемого числа
+                        let displayValue = (this.value + sketch.floor((sketch.frameCount + this.x + this.y) / 10)) % 10;
+                        sketch.text(displayValue, this.x, this.y);
+                    }
+                }
+                
+                sketch.windowResized = function() {
+                    sketch.resizeCanvas(window.innerWidth, window.innerHeight);
+                    // Обновление позиций частиц при изменении размера окна
+                    for (let particle of particles) {
+                        particle.x = sketch.random(sketch.width);
+                        particle.y = sketch.random(-100, sketch.height);
+                    }
+                };
+                
+                sketch.mousePressed = function() {
+                    // Предотвращаем обработку клика для переключения анимации
+                    // при клике внутри этой анимации
+                    return false;
+                };
+            }
+        };
+        
+        // Инициализируем первую анимацию при загрузке страницы
+        document.addEventListener('DOMContentLoaded', initializeP5);
+    </script>
+
+    <div class="home-button-container">
+        <a href="#" class="pulsing-home-btn" onclick="goToMainPage(); return false;">
+            <div class="pulse-circle circle-1"></div>
+            <div class="pulse-circle circle-2"></div>
+            <div class="pulse-circle circle-3"></div>
+            <span class="home-text"></span>
+        </a>
+    </div>
+
+    <script>
+    function goToMainPage() {
+        // Поднимаемся на уровень выше (../) и переходим к index.html
+        window.location.href = '../index.html';
+    }
+    </script>
+
+</body>
+</html>
