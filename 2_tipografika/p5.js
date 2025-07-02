@@ -13,6 +13,7 @@ function setup() {
 
 function draw() {
   background(0);
+  textFont('Orbitron');
   translate(0, height*0.1); // Сдвигаем на 10% высоты холста
   // Первая группа букв (левая часть)
   translate(width*0.2, 0);

@@ -6,6 +6,7 @@
     <title></title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <link rel="stylesheet" type="text/css" href="style_2_tipografika.css">
+     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -28,12 +29,13 @@
     <script>
 
         // Здесь код p5.js
-        let message = "DNADNADNADNADNADNADNADNADNADNADNADNADNAD";
+        let message = "DNADNADNADNADNADNADNADNADNADNADNADNA";
 let colors = []; // Для хранения цветов букв
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   textSize(30);
+  textFont('Orbitron');
   
   // Генерация цветов для каждой буквы
   for (let i = 0; i < message.length; i++) {

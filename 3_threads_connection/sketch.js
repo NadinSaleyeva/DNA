@@ -4,6 +4,7 @@ let dna = [];
 function setup() {
   createCanvas(windowWidth, windowHeight);
   textAlign(CENTER, CENTER);
+  textFont('Orbitron');
   
   // Создаем буквы ДНК со спиральными параметрами
   for (let i = 0; i < 200; i++) {

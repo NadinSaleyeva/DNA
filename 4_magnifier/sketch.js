@@ -8,6 +8,7 @@ let microscopeLight = 0;
 function setup() {
   createCanvas(windowWidth, windowHeight);
   colorMode(HSB, 360, 100, 100);
+  textFont('Orbitron');
   
   // Создаем элементы ДНК (буквы и связи)
   for (let i = 0; i < 150; i++) {
