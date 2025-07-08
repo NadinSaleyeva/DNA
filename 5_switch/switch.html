@@ -3,26 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Три анимации с переключением</title>
+    <title>Две анимации с переключением</title>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&display=swap" rel="stylesheet">
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-
-
-
-
-
-    
- <link rel="stylesheet" type="text/css" href="style_5_switch.css">
-
-
-
-
-
-
-   
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style_5_switch.css">
 </head>
 <body class="bg-black">
     <!-- <div class="info">Кликните в любом месте для переключения анимации</div>
@@ -43,95 +29,19 @@
             p5Instance = new p5(animations[currentAnimation]);
             
             // Обновляем индикатор анимации
-            document.querySelector('.anim-indicator').textContent = 'Анимация: ' + currentAnimation;
+            // document.querySelector('.anim-indicator').textContent = 'Анимация: ' + currentAnimation;
         }
         
         // Обработчик клика для переключения анимации
         document.addEventListener('click', function() {
-            currentAnimation = (currentAnimation % 3) + 1;
+            currentAnimation = (currentAnimation % 2) + 1; // Изменено с 3 на 2
             initializeP5();
         });
         
-        // Объект с тремя анимациями
+        // Объект с двумя анимациями
         const animations = {
-            // Анимация 1: Волнистый текст с частицами-символами
+            // Анимация 1: Сетка с волновыми эффектами и цифрами (бывшая анимация 2)
             1: function(sketch) {
-                let particles = [];
-                let nameText = "DNA";
-                
-                sketch.setup = function() {
-                    sketch.createCanvas(window.innerWidth, window.innerHeight);
-                    for (let i = 0; i < 700; i++) {
-                        particles.push(new Particle());
-                    }
-                    sketch.textFont('Orbitron');
-                };
-                
-                sketch.draw = function() {
-                    sketch.background(0, 0, 0);
-                    
-                    // Частицы-символы
-                    for (let p of particles) {
-                        p.update();
-                        p.display();
-                    }
-                    
-                    // Имя с эффектом волны и адаптивным расстоянием
-                    let fontSize = 78; // Размер шрифта
-                    let letterSpacing = fontSize * 0.7; // Расстояние между буквами
-                    
-                    sketch.textSize(fontSize);
-                    sketch.textAlign(sketch.CENTER, sketch.CENTER);
-                    for (let i = 0; i < nameText.length; i++) {
-                        // Расчет позиции с учетом межбуквенного расстояния
-                        let x = sketch.width / 2 - (nameText.length * letterSpacing) / 2 + i * letterSpacing;
-                        let y = sketch.height / 2 + sketch.sin(sketch.frameCount * 0.05 + i) * 10;
-                        
-                        // Динамический цвет
-                        sketch.fill(255, 100 + sketch.sin(sketch.frameCount * 0.1 + i) * 155, 200);
-                        
-                        // Отрисовка символа
-                        sketch.text(nameText[i], x, y);
-                    }
-                };
-                
-                // Класс частицы
-                class Particle {
-                    constructor() {
-                        this.x = sketch.random(sketch.width);
-                        this.y = sketch.random(sketch.height);
-                        this.speed = sketch.random(0.5, 2);
-                        this.size = sketch.random(80, 1000);
-                        this.chars = "123456780";
-                    }
-                    
-                    update() {
-                        this.y -= this.speed;
-                        if (this.y < -20) this.y = sketch.height + 20;
-                        this.x += sketch.sin(sketch.frameCount * 0.01 + this.y) * 0.5;
-                    }
-                    
-                    display() {
-                        sketch.fill(
-    100 + sketch.sin(sketch.frameCount * 0.05 + this.x) * 155,     // Red: от 100 до 255
-    100 + sketch.sin(sketch.frameCount * 0.05 + this.x) * 155,     // Green: от 100 до 255
-    100 + sketch.sin(sketch.frameCount * 0.05 + this.x) * 155,     // Blue: от 100 до 255
-    150 + sketch.sin(sketch.frameCount * 0.08 + this.x) * 105      // Alpha: от 150 до 255
-);
-
-                        sketch.textSize(this.size);
-                        let charIndex = sketch.floor(sketch.frameCount * 0.1 + this.x) % this.chars.length;
-                        sketch.text(this.chars[charIndex], this.x, this.y);
-                    }
-                }
-                
-                sketch.windowResized = function() {
-                    sketch.resizeCanvas(window.innerWidth, window.innerHeight);
-                };
-            },
-            
-            // Анимация 2: Сетка с волновыми эффектами и цифрами
-            2: function(sketch) {
                 let cols, rows;
                 let cellSize = 20;
                 let time = 0;
@@ -144,7 +54,7 @@
                     sketch.colorMode(sketch.HSB, 360, 100, 100, 1);
                     waveAmplitude = sketch.height / 6;
                     sketch.textAlign(sketch.CENTER, sketch.CENTER);
-                     sketch.textFont('Orbitron');
+                    sketch.textFont('Orbitron');
                 };
                 
                 sketch.draw = function() {
@@ -213,15 +123,15 @@
                 };
             },
             
-            // Анимация 3: Падающие числовые частицы
-            3: function(sketch) {
+            // Анимация 2: Падающие числовые частицы (бывшая анимация 3)
+            2: function(sketch) {
                 let particles = [];
                 const numParticles = 1000;
                 
                 sketch.setup = function() {
                     sketch.createCanvas(window.innerWidth, window.innerHeight);
                     sketch.colorMode(sketch.HSB, 360, 100, 100, 1);
-                     sketch.textFont('Orbitron');
+                    sketch.textFont('Orbitron');
                     
                     // Создание частиц
                     for (let i = 0; i < numParticles; i++) {

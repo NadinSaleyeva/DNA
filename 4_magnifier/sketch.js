@@ -120,7 +120,7 @@ function drawMicroscopeUI() {
   fill(230, 50, 20);
   textSize(16);
   textAlign(LEFT, CENTER);
-  text(`Увеличение: ${zoomLevel.toFixed(1)}x`, 30, 40);
+  text(`Zoom: ${zoomLevel.toFixed(1)}x`, 30, 40);
   
   // Подсветка при увеличении
   if (zoomLevel > 1.5) {
